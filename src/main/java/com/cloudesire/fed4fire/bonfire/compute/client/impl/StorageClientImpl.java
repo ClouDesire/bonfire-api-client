@@ -17,7 +17,7 @@ public class StorageClientImpl extends BaseClientImpl<Storage,Storages> implemen
 	{
 		private CheckerTask(Integer entityId, SettableFuture<Storage> result, long end)
 		{
-			super(entityId,result,end);
+			super(entityId, result, end);
 		}
 
 		@Override
@@ -32,16 +32,19 @@ public class StorageClientImpl extends BaseClientImpl<Storage,Storages> implemen
 						Thread.currentThread().setName("Bonfire-storage-" + entityId);
 						Storage storage = retrieve(entityId);
 
-						if ("done".equals(storage.getState().toLowerCase()) || "cancel".equals(storage.getState().toLowerCase()) ||
-								"ready".equals(storage.getState().toLowerCase()) || "on".equals(storage.getState().toLowerCase()) ||
-								"active".equals(storage.getState().toLowerCase()) || "failed".equals(storage.getState().toLowerCase()))
+						if ( "ready".equals(storage.getState().toLowerCase()) )
 						{
 							result.set( storage );
 							cancel();
 						}
+						else if( "cancel".equals(storage.getState().toLowerCase()) || "failed".equals(storage.getState().toLowerCase()) )
+						{
+							result.setException( new IllegalStateException("Storage status was: " + storage.getState()) );
+							cancel();
+						}
 						else if (System.currentTimeMillis() > end)
 						{
-							result.setException(new TimeoutException("Timeout expired"));
+							result.setException( new TimeoutException( "Timeout expired" ) );
 							cancel();
 						}
 

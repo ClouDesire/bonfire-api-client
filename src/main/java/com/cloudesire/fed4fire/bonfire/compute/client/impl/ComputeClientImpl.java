@@ -28,20 +28,22 @@ public class ComputeClientImpl extends BaseClientImpl<Compute,Computes> implemen
 				{
 					try
 					{
-						Thread.currentThread().setName("Bonfire-compute-" + entityId);
+						Thread.currentThread().setName( "Bonfire-compute-" + entityId );
 						Compute compute = retrieve(entityId);
 
-						if ("done".equals(compute.getState().toLowerCase()) || "cancel".equals(compute.getState().toLowerCase()) ||
-								"running".equals(compute.getState().toLowerCase()) || "on".equals(compute.getState().toLowerCase())	||
-								"active".equals(compute.getState().toLowerCase()) || "failed".equals(compute.getState().toLowerCase()))
+						if ( "running".equals(compute.getState().toLowerCase()) )
 						{
 							result.set( compute );
 							cancel();
 						}
+						else if( "cancel".equals( compute.getState().toLowerCase()) || "failed".equals(compute.getState().toLowerCase()) )
+						{
+							result.setException( new IllegalStateException( "Compute status was: " +compute.getState()) );
+							cancel();
+						}
 						else if (System.currentTimeMillis() > end)
 						{
-							result.setException(new TimeoutException(
-									"Timeout expired"));
+							result.setException(new TimeoutException( "Timeout expired" ));
 							cancel();
 						}
 
