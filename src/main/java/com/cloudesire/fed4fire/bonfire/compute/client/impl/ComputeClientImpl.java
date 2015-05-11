@@ -33,7 +33,7 @@ public class ComputeClientImpl extends BaseClientImpl<Compute,Computes> implemen
 
 						if ("done".equals(compute.getState().toLowerCase()) || "cancel".equals(compute.getState().toLowerCase()) ||
 								"running".equals(compute.getState().toLowerCase()) || "on".equals(compute.getState().toLowerCase())	||
-								"active".equals(compute.getState().toLowerCase()))
+								"active".equals(compute.getState().toLowerCase()) || "failed".equals(compute.getState().toLowerCase()))
 						{
 							result.set( compute );
 							cancel();

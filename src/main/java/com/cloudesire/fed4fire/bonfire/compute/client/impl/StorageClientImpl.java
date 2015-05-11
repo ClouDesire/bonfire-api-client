@@ -34,7 +34,7 @@ public class StorageClientImpl extends BaseClientImpl<Storage,Storages> implemen
 
 						if ("done".equals(storage.getState().toLowerCase()) || "cancel".equals(storage.getState().toLowerCase()) ||
 								"ready".equals(storage.getState().toLowerCase()) || "on".equals(storage.getState().toLowerCase()) ||
-								"active".equals(storage.getState()))
+								"active".equals(storage.getState().toLowerCase()) || "failed".equals(storage.getState().toLowerCase()))
 						{
 							result.set( storage );
 							cancel();
