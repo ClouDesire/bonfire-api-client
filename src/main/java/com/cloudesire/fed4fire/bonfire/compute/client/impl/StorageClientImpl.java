@@ -32,21 +32,29 @@ public class StorageClientImpl extends BaseClientImpl<Storage,Storages> implemen
 						Thread.currentThread().setName("Bonfire-storage-" + entityId);
 						Storage storage = retrieve(entityId);
 
+
+						if ( "locked".equals(storage.getState().toLowerCase()) )
+						{
+							if (System.currentTimeMillis() > end)
+							{
+								result.setException(new TimeoutException( "Timeout expired" ));
+								cancel();
+							}
+
+							return;
+						}
+
 						if ( "ready".equals(storage.getState().toLowerCase()) )
 						{
 							result.set( storage );
 							cancel();
 						}
-						else if( "cancel".equals(storage.getState().toLowerCase()) || "failed".equals(storage.getState().toLowerCase()) )
+						else
 						{
-							result.setException( new IllegalStateException("Storage status was: " + storage.getState()) );
+							result.setException( new IllegalStateException( "Storage status was: " +storage.getState()) );
 							cancel();
 						}
-						else if (System.currentTimeMillis() > end)
-						{
-							result.setException( new TimeoutException( "Timeout expired" ) );
-							cancel();
-						}
+
 
 					} catch (Exception e)
 					{

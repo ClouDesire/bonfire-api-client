@@ -17,7 +17,7 @@ public class ComputeClientImpl extends BaseClientImpl<Compute,Computes> implemen
 	{
 		private CheckerTask(Integer entityId, SettableFuture<Compute> result, long end)
 		{
-			super(entityId,result,end);
+			super(entityId, result, end);
 		}
 
 		@Override
@@ -31,22 +31,28 @@ public class ComputeClientImpl extends BaseClientImpl<Compute,Computes> implemen
 						Thread.currentThread().setName( "Bonfire-compute-" + entityId );
 						Compute compute = retrieve(entityId);
 
+						if ( "pending".equals(compute.getState().toLowerCase()) || "prolog".equals(compute.getState().toLowerCase())
+								|| "boot".equals(compute.getState().toLowerCase()))
+						{
+							if (System.currentTimeMillis() > end)
+							{
+								result.setException(new TimeoutException( "Timeout expired" ));
+								cancel();
+							}
+
+							return;
+						}
+
 						if ( "running".equals(compute.getState().toLowerCase()) )
 						{
 							result.set( compute );
 							cancel();
 						}
-						else if( "cancel".equals( compute.getState().toLowerCase()) || "failed".equals(compute.getState().toLowerCase()) )
+						else
 						{
 							result.setException( new IllegalStateException( "Compute status was: " +compute.getState()) );
 							cancel();
 						}
-						else if (System.currentTimeMillis() > end)
-						{
-							result.setException(new TimeoutException( "Timeout expired" ));
-							cancel();
-						}
-
 
 					} catch (Exception e)
 					{
