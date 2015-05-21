@@ -53,7 +53,7 @@ public class Compute extends Links
 		}
 		public ComputeBuilder addDatadiskId( Integer datadiskId )
 		{
-			this.datadiskIds.add(datadiskId);
+			if ( datadiskId != null ) this.datadiskIds.add(datadiskId);
 			return this;
 		}
 		public ComputeBuilder setInstanceType( Types instanceType )
