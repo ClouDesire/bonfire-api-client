@@ -13,7 +13,7 @@ public class Compute extends Links
 
 	public static enum Types
 	{
-		lite,small,medium,large;
+		lite,small,medium,large,custom;
 	}
 
 	public static class ComputeBuilder
@@ -25,6 +25,9 @@ public class Compute extends Links
 		private List<Integer> networkIds = new ArrayList<>();
 		private List<Integer> datadiskIds = new ArrayList<>();
 		private String instanceType;
+		private Integer memory;
+		private Integer vcpu;
+		private BigDecimal cpu;
 
 
 		public ComputeBuilder ( String testbedName )
@@ -66,6 +69,21 @@ public class Compute extends Links
 			this.instanceType = instanceType;
 			return this;
 		}
+		public ComputeBuilder setCpu( BigDecimal cpu )
+		{
+			this.cpu = cpu;
+			return this;
+		}
+		public ComputeBuilder setVcpu( Integer vcpu )
+		{
+			this.vcpu = vcpu;
+			return this;
+		}
+		public ComputeBuilder setMemory( Integer memory )
+		{
+			this.memory = memory;
+			return this;
+		}
 
 		public Compute build()
 		{
@@ -75,6 +93,12 @@ public class Compute extends Links
 
 			compute.setName(name);
 			compute.setInstanceType(new Compute.InstanceType(instanceType));
+			if(instanceType.equals("custom"))
+			{
+				compute.setCpu(cpu);
+				compute.setVcpu(vcpu);
+				compute.setMemory(memory);
+			}
 			compute.setHost(host);
 
 			compute.setDisks(new ArrayList<Disk>());
@@ -108,6 +132,11 @@ public class Compute extends Links
 			if (osId == null ) throw new IllegalArgumentException("osId cannot be null");
 			if (networkIds.isEmpty()  ) throw new IllegalArgumentException("networkIds cannot be empty");
 			if (instanceType == null ) throw new IllegalArgumentException("instanceType cannot be null");
+			if( instanceType.equals("custom") )
+			{
+				if ( cpu == null || vcpu == null || memory == null)
+					throw new IllegalArgumentException("if a custom instance is requested, cpu, vcpu and memory cannot be null");
+			}
 		}
 	}
 
@@ -152,6 +181,22 @@ public class Compute extends Links
 					"value='" + value + '\'' +
 					", href='" + href + '\'' +
 					'}';
+		}
+
+		@Override public boolean equals ( Object o )
+		{
+			if (this == o) return true;
+			if (!(o instanceof InstanceType)) return false;
+
+			InstanceType that = (InstanceType) o;
+
+			return !(value != null ? !value.equals(that.value) : that.value != null);
+
+		}
+
+		@Override public int hashCode ()
+		{
+			return value != null ? value.hashCode() : 0;
 		}
 	}
 
@@ -271,12 +316,23 @@ public class Compute extends Links
 	private String groups;
 	private String uname;
 	private BigDecimal cpu;
+	private Integer vcpu;
 	private Integer memory;
 	private Compute.InstanceType instanceType;
 	private String host;
 	private String state;
 	private List<Compute.Disk> disks;
 	private List<Compute.Nic> nics;
+
+	public Integer getVcpu ()
+	{
+		return vcpu;
+	}
+
+	public void setVcpu ( Integer vcpu )
+	{
+		this.vcpu = vcpu;
+	}
 
 	public Integer getId ()
 	{
@@ -431,6 +487,7 @@ public class Compute extends Links
 				", nameAttribute='" + nameAttribute + '\'' +
 				", uname='" + uname + '\'' +
 				", cpu=" + cpu +
+				", vcpu=" + vcpu +
 				", memory=" + memory +
 				", instanceType=" + instanceType +
 				", state='" + state + '\'' +
