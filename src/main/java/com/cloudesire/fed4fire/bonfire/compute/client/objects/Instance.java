@@ -1,6 +1,10 @@
 package com.cloudesire.fed4fire.bonfire.compute.client.objects;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.xml.bind.annotation.*;
+import java.math.BigDecimal;
+
 @XmlType
 @XmlRootElement (name = "instance", namespace = "http://api.bonfire-project.eu/doc/schemas/occi")
 @XmlAccessorType (value = XmlAccessType.PROPERTY)
@@ -14,6 +18,8 @@ public class Instance extends Resource
 		Locations.Location location;
 		String cluster;
 		Integer count;
+		BigDecimal cpu;
+		Integer memory;
 
 		public InstanceBuilder setLocation( Location location )
 		{
@@ -46,6 +52,18 @@ public class Instance extends Resource
 			return this;
 		}
 
+		public InstanceBuilder setMemory( Integer memory )
+		{
+			this.memory = memory;
+			return this;
+		}
+
+		public InstanceBuilder setCpu( BigDecimal cpu )
+		{
+			this.cpu = cpu;
+			return this;
+		}
+
 		public InstanceBuilder setInstanceType( String instanceType )
 		{
 			this.instanceType = instanceType;
@@ -60,10 +78,16 @@ public class Instance extends Resource
 
 		public Instance build ()
 		{
-			if ( this.location == null || this.count == null )throw new IllegalArgumentException("location and count are required");
+			if ( this.location == null || this.count == null || StringUtils.isBlank(instanceType) )throw new IllegalArgumentException("location, count and instanceType are required");
 			Instance instance = new Instance();
 			instance.setLocation(location);
 			instance.setInstanceType(instanceType);
+			if ( "custom".equals(instanceType) )
+			{
+				if ( cpu == null || memory == null ) throw new IllegalArgumentException("cpu and memory are required for a custom instance type");
+				instance.setCpu(cpu);
+				instance.setMemory(memory);
+			}
 			instance.setCount(count);
 			instance.setCluster(cluster);
 			instance.setHost(host);
@@ -73,6 +97,8 @@ public class Instance extends Resource
 
 
 	private String instanceType;
+	private BigDecimal cpu;
+	private Integer memory;
 	private String host;
 
 	@XmlElement (name = "instance_type")
@@ -96,12 +122,33 @@ public class Instance extends Resource
 		this.host = host;
 	}
 
+	public BigDecimal getCpu ()
+	{
+		return cpu;
+	}
+
+	public void setCpu ( BigDecimal cpu )
+	{
+		this.cpu = cpu;
+	}
+
+	public Integer getMemory ()
+	{
+		return memory;
+	}
+
+	public void setMemory ( Integer memory )
+	{
+		this.memory = memory;
+	}
+
 	@Override public String toString ()
 	{
 		return "Instance{" +
 				"instanceType='" + instanceType + '\'' +
+				", cpu=" + cpu +
+				", memory=" + memory +
 				", host='" + host + '\'' +
-				super.toString() +
-				'}';
+				super.toString() +'}';
 	}
 }
