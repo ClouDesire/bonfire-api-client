@@ -2,6 +2,8 @@ package com.cloudesire.fed4fire.bonfire.compute.client.objects;
 
 import javax.xml.bind.annotation.*;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 @XmlType
 @XmlRootElement (name = "reservation", namespace = "http://api.bonfire-project.eu/doc/schemas/occi")
@@ -28,6 +30,8 @@ public class Reservation
 	private Integer walltime;
 	private Date startTime;
 
+	private List<? extends Resource> resources = new LinkedList<>();
+
 
 	@XmlAttribute (name = "href")
 	public String getHref ()
@@ -50,6 +54,15 @@ public class Reservation
 		this.groups = groups;
 	}
 
+	public List<? extends Resource> getResources ()
+	{
+		return resources;
+	}
+
+	public void setResources ( List<? extends Resource> resources )
+	{
+		this.resources = resources;
+	}
 
 	@XmlElement (name = "starttime")
 	public Date getStartTime ()
@@ -132,6 +145,7 @@ public class Reservation
 				", name='" + name + '\'' +
 				", description='" + description + '\'' +
 				", walltime=" + walltime +
-				", startTime=" + startTime;
+				", startTime=" + startTime +
+				", resources=" + resources;
 	}
 }

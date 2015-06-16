@@ -18,10 +18,6 @@ public class HostReservation extends Reservation
 		return resources;
 	}
 
-	public void setResources ( List<Host> resources )
-	{
-		this.resources = resources;
-	}
 
 	@Override public String toString ()
 	{

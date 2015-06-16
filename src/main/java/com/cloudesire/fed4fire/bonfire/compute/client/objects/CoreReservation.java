@@ -18,10 +18,6 @@ public class CoreReservation extends Reservation
 		return resources;
 	}
 
-	public void setResources ( List<Core> resources )
-	{
-		this.resources = resources;
-	}
 
 	@Override public String toString ()
 	{

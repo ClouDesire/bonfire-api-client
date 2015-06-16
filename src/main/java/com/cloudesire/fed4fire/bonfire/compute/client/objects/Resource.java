@@ -1,6 +1,12 @@
 package com.cloudesire.fed4fire.bonfire.compute.client.objects;
 
-public abstract class Resource
+import javax.xml.bind.annotation.*;
+
+@XmlType
+@XmlRootElement (name = "instance", namespace = "http://api.bonfire-project.eu/doc/schemas/occi")
+@XmlAccessorType (value = XmlAccessType.PROPERTY)
+@XmlSeeAlso ({Core.class,Instance.class, Host.class})
+public class Resource
 {
 	public enum Location
 	{
