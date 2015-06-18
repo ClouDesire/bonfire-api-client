@@ -13,12 +13,12 @@ import java.util.concurrent.TimeUnit;
 public class MainTest
 {
 	final static String LOGIN = "login";
-	final static String PASSWORD= "password";
+	final static String PASSWORD = "password";
 
 	public static void main ( String[] args ) throws Exception
 	{
 		/*remember to close the client or use AutoCloseable*/
-		try(BonfireComputeClient client = new BonfireComputeClientImpl(LOGIN, PASSWORD))
+		try (BonfireComputeClient client = new BonfireComputeClientImpl(LOGIN, PASSWORD))
 		{
 			/* Experiment Reservation by Instance example */
 
@@ -28,9 +28,9 @@ public class MainTest
 			instanceReservation.setGroups("master");
 			instanceReservation.setWalltime(3600);
 			instanceReservation.setStartTime(new Date());
-			instanceReservation.getResources().add(
-					new Instance.InstanceBuilder().setInstanceType("small").setLocation(Resource.Location.FR_INRIA)
-							.setCount(1).build());
+			instanceReservation.getResources()
+					.add(new Instance.InstanceBuilder().setInstanceType("small").setLocation(Resource.Location.FR_INRIA)
+									.setCount(1).build());
 
 			Reservation reservation = client.getReservationClient().create(instanceReservation);
 
@@ -67,11 +67,9 @@ public class MainTest
 			/*Storage creation*/
 
 			Integer expId = experiment.getId();
-			String testbedName ="fr-inria";
+			String testbedName = "fr-inria";
 
-			Storage storage = new Storage.DataStorageBuilder()
-					.setName("test-storage")
-					.setDescription("storage test")
+			Storage storage = new Storage.DataStorageBuilder().setName("test-storage").setDescription("storage test")
 					.setSize(4096).build();
 
 			storage = client.getCustomComputeClient(testbedName).getStorageClient().create(expId, storage);
@@ -88,7 +86,7 @@ public class MainTest
 
 
 			/*VM creation*/
-			Compute compute = setupCompute( storage.getId(),testbedName );
+			Compute compute = setupCompute(storage.getId(), testbedName);
 
 			compute = client.getCustomComputeClient(testbedName).getComputeClient().create(expId, compute);
 
@@ -108,25 +106,40 @@ public class MainTest
 			/*************************/
 			/*Backup*/
 			/*Beware this operation will destroy the actual VM but at the end of the operation it will be possible to create copies of her*/
-			/*here we set the main Disk, OS diskId is 0, to be saved when the vm will be shutdown, the operation will return the location of the storage that will be created*/
-			String storageBackup = client.getCustomComputeClient(testbedName).getStorageClient().saveOsDiskAs(compute.getId(), "save_as_backup_test_001");
 
+			/*here we set the main Disk, OS diskId is 0, to be saved when the vm will be shutdown,
+			the operation will return the location of the storage that will be created*/
+			String osDiskBackup = client.getCustomComputeClient(testbedName).getStorageClient()
+					.saveOsDiskAs(compute.getId(), "save_as_os_backup_test");
+			System.out.println(osDiskBackup);
+
+			/*if present, we set the datadisk to be saved, notice the diskId = 1*/
+			String storageBackup = client.getCustomComputeClient(testbedName).getStorageClient().saveStorageAs(compute.getId(),
+					1, "save_as_datadisk_backup_test");
 			System.out.println(storageBackup);
 
 			/*shutingdown the vm*/
-			client.getCustomComputeClient(testbedName).getComputeClient().changeComputeState(compute.getId(), ComputeState.State.SHUTDOWN);
+			client.getCustomComputeClient(testbedName).getComputeClient()
+					.changeComputeState(compute.getId(), ComputeState.State.SHUTDOWN);
+
+			Integer osDiskId = Integer.valueOf(osDiskBackup.substring(osDiskBackup.lastIndexOf('/') + 1 ));
+			Integer storageId = Integer.valueOf(storageBackup.substring(storageBackup.lastIndexOf('/') + 1));
 
 			/*Guava Future*/
-			ListenableFuture<Storage> backupSstorageFuture = client.getCustomComputeClient(testbedName).getStorageClient()
-					.getListenableFuture(storage.getId(), 5, TimeUnit.MINUTES);
+			ListenableFuture<Storage> osdiskBackupFuture = client.getCustomComputeClient(testbedName).getStorageClient()
+					.getListenableFuture(osDiskId, 5, TimeUnit.MINUTES);
+
+			ListenableFuture<Storage> datadiskBackupFuture = client.getCustomComputeClient(testbedName).getStorageClient()
+					.getListenableFuture(storageId, 5, TimeUnit.MINUTES);
 
 			/*Will block till the backup storage is available*/
-			Storage backupStorage = backupSstorageFuture.get();
+			Storage osdiskStorage = osdiskBackupFuture.get();
+			System.out.println(osdiskStorage);
 
-			System.out.println(backupStorage);
+			Storage datadiskStorage = datadiskBackupFuture.get();
+			System.out.println(datadiskStorage);
 
 			/*Instead of the the custom Compute client, for this test we can use the Inria one. In this case it's unnecessary to pass the testbed name*/
-
 			client.getInriaComputeClient().getStorageClient().delete(storage.getId());
 
 		} catch (RestException e)
@@ -159,16 +172,16 @@ public class MainTest
 				bonfireWANId = 0;
 				break;
 			default:
-				System.out.println("Unknown testbed: "+testbedName);
+				System.out.println("Unknown testbed: " + testbedName);
 				return null;
 		}
 
-		Compute.ComputeBuilder builder = new Compute.ComputeBuilder(testbedName)
-				.setName("test-compute").setInstanceType(Compute.Types.small)
-				.addNetworkId(publicNetworkId) // Public Network: fr-inria:27 uk-epcc:517
+		Compute.ComputeBuilder builder = new Compute.ComputeBuilder(testbedName).setName("test-compute")
+				.setInstanceType(Compute.Types.small).addNetworkId(
+						publicNetworkId) // Public Network: fr-inria:27 uk-epcc:517
 				.addNetworkId(bonfireWANId) //Bonfire WAN : fr-inria: 53 uk-epcc: 105
 				.setOsId(osId)  //BonFIRE Debian Squeeze 10G v6: fr-inria:3904 uk-epcc:4529
-				//.setHost("bonfire-blade-1") //optional
+						//.setHost("bonfire-blade-1") //optional
 				.addDatadiskId(datadiskId);
 		return builder.build();
 	}
