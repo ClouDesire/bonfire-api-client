@@ -49,7 +49,8 @@ public class MainTest
 			exp.setName("group-test-002");
 			exp.setDescription("experiment test");
 
-			//exp.setReservationId(reservation.getId());
+			/*if a reservation was reserved set it here*/
+			exp.setReservationId(reservation.getId());
 
 			exp.setWalltime(3600);
 			exp.setGroups("myGroup");
@@ -104,9 +105,27 @@ public class MainTest
 
 			System.out.println(client.getInriaComputeClient().getComputeClient().retrieveAll());
 
-			/*Instead of the the custom Compute client, for this test we can use the Inria one. In this case it's unnecessary to pass the testbed name*/
+			/*************************/
+			/*Backup*/
+			/*Beware this operation will destroy the actual VM but at the end of the operation it will be possible to create copies of her*/
+			/*here we set the main Disk, OS diskId is 0, to be saved when the vm will be shutdown, the operation will return the location of the storage that will be created*/
+			String storageBackup = client.getCustomComputeClient(testbedName).getStorageClient().saveOsDiskAs(compute.getId(), "save_as_backup_test_001");
 
-			client.getInriaComputeClient().getComputeClient().delete(compute.getId());
+			System.out.println(storageBackup);
+
+			/*shutingdown the vm*/
+			client.getCustomComputeClient(testbedName).getComputeClient().changeComputeState(compute.getId(), ComputeState.State.SHUTDOWN);
+
+			/*Guava Future*/
+			ListenableFuture<Storage> backupSstorageFuture = client.getCustomComputeClient(testbedName).getStorageClient()
+					.getListenableFuture(storage.getId(), 5, TimeUnit.MINUTES);
+
+			/*Will block till the backup storage is available*/
+			Storage backupStorage = backupSstorageFuture.get();
+
+			System.out.println(backupStorage);
+
+			/*Instead of the the custom Compute client, for this test we can use the Inria one. In this case it's unnecessary to pass the testbed name*/
 
 			client.getInriaComputeClient().getStorageClient().delete(storage.getId());
 

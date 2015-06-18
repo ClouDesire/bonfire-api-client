@@ -1,9 +1,7 @@
 package com.cloudesire.fed4fire.bonfire.compute.client.impl;
 
 import com.cloudesire.fed4fire.bonfire.compute.client.StorageClient;
-import com.cloudesire.fed4fire.bonfire.compute.client.objects.Links;
-import com.cloudesire.fed4fire.bonfire.compute.client.objects.Storage;
-import com.cloudesire.fed4fire.bonfire.compute.client.objects.Storages;
+import com.cloudesire.fed4fire.bonfire.compute.client.objects.*;
 import com.cloudesire.tisana4j.exceptions.RestException;
 import com.cloudesire.tisana4j.exceptions.RuntimeRestException;
 import com.google.common.util.concurrent.SettableFuture;
@@ -86,6 +84,24 @@ public class StorageClientImpl extends BaseClientImpl<Storage,Storages> implemen
 	{
 		entity.setLink(new Links.Link( "locations/" + testbedName, "location" ));
 		return client.post( "experiments/" + experimentId + "/storages", entity );
+	}
+
+	@Override public String saveOsDiskAs ( Integer computeId, String saveAs ) throws MalformedURLException, RuntimeRestException, RestException
+	{
+		return saveStorageAs(computeId, 0, saveAs);
+	}
+
+	@Override public String saveStorageAs ( Integer computeId, Integer diskId, String saveAs )
+			throws MalformedURLException, RuntimeRestException, RestException
+	{
+		Compute compute = client.put( "locations/" + testbedName + "/computes/" + computeId, new StorageSaveAs(diskId, saveAs), Compute.class );
+
+		for ( Compute.Disk d :compute.getDisks() )
+		{
+			if ( diskId == d.getId() ) return d.getSaveAs().getHref();
+		}
+
+		throw new IllegalStateException("Backup target storage not found");
 	}
 
 	@Override

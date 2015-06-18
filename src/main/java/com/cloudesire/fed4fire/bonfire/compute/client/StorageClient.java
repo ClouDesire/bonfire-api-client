@@ -12,4 +12,10 @@ public interface StorageClient extends RetrieveAll<Storages>, Retrieve<Storage>,
 {
 	Storage create ( Integer experimentId, Storage entity ) throws MalformedURLException,
 			RuntimeRestException, RestException;
+
+	String saveOsDiskAs ( Integer computeId, String saveAs) throws MalformedURLException,
+			RuntimeRestException, RestException;
+
+	String saveStorageAs ( Integer computeId, Integer diskId, String saveAs) throws MalformedURLException,
+			RuntimeRestException, RestException;
 }

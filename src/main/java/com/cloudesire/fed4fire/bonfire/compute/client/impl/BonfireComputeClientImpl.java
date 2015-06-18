@@ -85,6 +85,12 @@ public class BonfireComputeClientImpl implements BonfireComputeClient
 		return getClient().put(getUrl(entityUrl), entity);
 	}
 
+	protected <T,E> T put( String entityUrl, E entity, Class<T> responseClass ) throws MalformedURLException, RuntimeRestException, RestException
+	{
+		return getClient().put(getUrl(entityUrl), entity, null, responseClass );
+	}
+
+
 	protected void delete( String entityUrl ) throws MalformedURLException, RuntimeRestException, RestException
 	{
 		getClient().delete(getUrl(entityUrl) );

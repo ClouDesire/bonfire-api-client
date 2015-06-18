@@ -2,6 +2,7 @@ package com.cloudesire.fed4fire.bonfire.compute.client.impl;
 
 import com.cloudesire.fed4fire.bonfire.compute.client.ComputeClient;
 import com.cloudesire.fed4fire.bonfire.compute.client.objects.Compute;
+import com.cloudesire.fed4fire.bonfire.compute.client.objects.ComputeState;
 import com.cloudesire.fed4fire.bonfire.compute.client.objects.Computes;
 import com.cloudesire.tisana4j.exceptions.RestException;
 import com.cloudesire.tisana4j.exceptions.RuntimeRestException;
@@ -84,6 +85,12 @@ public class ComputeClientImpl extends BaseClientImpl<Compute,Computes> implemen
 	{
 		entity.setLocation(getLocation());
 		return client.post( "experiments/" + experimentId + "/computes", entity );
+	}
+
+	@Override public Compute changeComputeState ( Integer computeId, ComputeState.State state )
+			throws MalformedURLException, RuntimeRestException, RestException
+	{
+		return client.put( "locations/" + testbedName + "/computes/" + computeId, new ComputeState(state), Compute.class );
 	}
 
 	@Override public Compute update ( Compute entity, Integer id ) throws MalformedURLException, RuntimeRestException, RestException

@@ -202,13 +202,61 @@ public class Compute extends Links
 
 	@XmlType
 	@XmlAccessorType (value = XmlAccessType.PROPERTY)
+	@XmlRootElement (name = "save_as")
+	public static class SaveAs
+	{
+		public SaveAs (){}
+		public SaveAs ( String name )
+		{
+			this.name=name;
+		}
+
+		private String href;
+		private String name;
+
+		@XmlAttribute (name = "href")
+		public String getHref ()
+		{
+			return href;
+		}
+
+		public void setHref ( String href )
+		{
+			this.href = href;
+		}
+
+		@XmlAttribute (name = "name")
+		public String getName ()
+		{
+			return name;
+		}
+
+		public void setName ( String name )
+		{
+			this.name = name;
+		}
+
+		@Override public String toString ()
+		{
+			return "SaveAs{" +
+					"href='" + href + '\'' +
+					", name='" + name + '\'' +
+					'}';
+		}
+	}
+
+	@XmlType
+	@XmlAccessorType (value = XmlAccessType.PROPERTY)
 	public static class Disk
 	{
-
+		public Disk (){}
+		public Disk (Integer id){this.id=id;}
 		private Integer id;
 		private Storage storage;
 		private String type;
+		private SaveAs saveAs;
 		private String target;
+
 		@XmlAttribute (name = "id")
 		public Integer getId ()
 		{
@@ -250,15 +298,28 @@ public class Compute extends Links
 			this.target = target;
 		}
 
+		@XmlElement (name = "save_as")
+		public SaveAs getSaveAs ()
+		{
+			return saveAs;
+		}
+
+		public void setSaveAs ( SaveAs saveAs )
+		{
+			this.saveAs = saveAs;
+		}
+
 		@Override public String toString ()
 		{
 			return "Disk{" +
 					"id=" + id +
 					", storage=" + storage +
 					", type='" + type + '\'' +
+					", saveAs=" + saveAs +
 					", target='" + target + '\'' +
 					'}';
 		}
+
 	}
 	@XmlType
 	@XmlAccessorType (value = XmlAccessType.PROPERTY)

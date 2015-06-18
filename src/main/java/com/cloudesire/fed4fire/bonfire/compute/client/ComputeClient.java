@@ -1,6 +1,7 @@
 package com.cloudesire.fed4fire.bonfire.compute.client;
 
 import com.cloudesire.fed4fire.bonfire.compute.client.objects.Compute;
+import com.cloudesire.fed4fire.bonfire.compute.client.objects.ComputeState;
 import com.cloudesire.fed4fire.bonfire.compute.client.objects.Computes;
 import com.cloudesire.tisana4j.exceptions.RestException;
 import com.cloudesire.tisana4j.exceptions.RuntimeRestException;
@@ -11,6 +12,9 @@ public interface ComputeClient extends Retrieve<Compute>,RetrieveAll<Computes>, 
 		GetListenableFuture<Compute>
 {
 	Compute create ( Integer experimentId, Compute entity ) throws MalformedURLException,
+			RuntimeRestException, RestException;
+
+	Compute changeComputeState ( Integer computeId, ComputeState.State state ) throws MalformedURLException,
 			RuntimeRestException, RestException;
 
 }
