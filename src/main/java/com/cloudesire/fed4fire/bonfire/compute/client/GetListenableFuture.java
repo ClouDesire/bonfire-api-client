@@ -7,5 +7,4 @@ import java.util.concurrent.TimeUnit;
 public interface GetListenableFuture<T>
 {
 	ListenableFuture<T> getListenableFuture ( Integer entityId, long timeout, TimeUnit unit );
-
 }

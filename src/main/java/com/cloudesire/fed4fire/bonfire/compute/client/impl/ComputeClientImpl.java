@@ -33,7 +33,7 @@ public class ComputeClientImpl extends BaseClientImpl<Compute,Computes> implemen
 						Compute compute = retrieve(entityId);
 
 						if ( "pending".equals(compute.getState().toLowerCase()) || "prolog".equals(compute.getState().toLowerCase())
-								|| "boot".equals(compute.getState().toLowerCase()))
+								|| "boot".equals(compute.getState().toLowerCase()) )
 						{
 							if (System.currentTimeMillis() > end)
 							{

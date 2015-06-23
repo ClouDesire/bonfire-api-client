@@ -118,7 +118,7 @@ public class MainTest
 					1, "save_as_datadisk_backup_test");
 			System.out.println(storageBackup);
 
-			/*shutingdown the vm*/
+			/*shutting down the vm*/
 			client.getCustomComputeClient(testbedName).getComputeClient()
 					.changeComputeState(compute.getId(), ComputeState.State.SHUTDOWN);
 
