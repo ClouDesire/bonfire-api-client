@@ -58,10 +58,8 @@ public class BonfireComputeClientImpl implements BonfireComputeClient
 
 	@Override public void close () throws Exception
 	{
-		if (executorService == null) return;
 		timer.cancel();
 		executorService.shutdown();
-		executorService = null;
 	}
 
 	protected URL getUrl(String path) throws MalformedURLException
